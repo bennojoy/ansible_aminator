@@ -1,0 +1,52 @@
+---
+# Aminator role
+- name: Install Python libraries
+  pip: name={{ item }} state=latest
+  with_items:
+    - distribute
+    - setuptools
+    - bunch
+
+- name: Create config directory
+  file: name=/etc/aminator state=directory owner=root group=root mode=0755
+  
+- name: Create logging directory
+  file: name=/var/log/aminator state=directory owner=root group=root mode=0755
+  
+- name: Create working directories
+  file: name={{ item }} state=directory owner=root group=root mode=0755
+  with_items:
+    - /var/aminator
+    - /var/aminator/lock
+    - /var/aminator/volumes
+  tags: dirs
+  
+- name: Checkout Aminator code from Github
+  git: repo={{ aminator_repo }}
+       dest=/usr/local/aminator
+       version={{ aminator_branch }}
+
+- name: Install Aminator
+  command: python setup.py install chdir=/usr/local/aminator
+  register: result
+  ignore_errors: yes
+
+- name: Install Aminator
+  command: python setup.py install chdir=/usr/local/aminator
+  when: result|failed 
+
+- name: Copy config files
+  command: cp /usr/local/aminator/aminator/default_conf/{{ item }} /etc/aminator/{{ item }}
+  with_items:
+    - aminator.yml
+    - environments.yml
+    - logging.yml
+
+- name: Checkout NetflixOSS-Ansible code from Github
+  git: repo=https://github.com/bennojoy/netflixoss-ansible.git
+       dest=/usr/local/netflixoss-ansible
+       version=master
+  
+- name: Install DistAMI
+  pip: name=distami state=latest
+  

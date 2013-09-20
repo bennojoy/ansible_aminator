@@ -1,0 +1,10 @@
+#Variables visible across all environments
+#
+# Variables for ec2 provisioning
+#
+ec2_region: us-east-1
+ec2_zone: "us-east-1a"
+ec2_access_key: "AKIA5VQUFDNXQ"
+ec2_secret_key: "Ryhzz1wzZ3kmtMEu"
+count: 1
+

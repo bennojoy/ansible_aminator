@@ -1,0 +1,31 @@
+- hosts: all
+  connection: local
+  gather_facts: no
+  tasks:
+   - fail: msg=" Please make sure the variables  id is specified and unique in the command line -e id=uniquedev1"
+     when: id is not defined
+
+   - name: Create Instance
+     ec2: 
+      region="{{ ec2_region }}"
+      zone="{{ ec2_zone }}"
+      id={{ id }}
+      ec2_access_key={{ ec2_access_key }}
+      ec2_secret_key={{ ec2_secret_key }}
+      keypair={{ ec2_keypair }}
+      instance_type={{ ec2_instance_type }} 
+      image=ami-c7a3e8ae
+      wait=true
+      group={{ ec2_group }}
+      user_data={{ group_names[0] }}
+      instance_tags='{"Name":"Aminator", "id":"{{ id }}"}'
+      count={{ count }}
+     register: ec2
+  
+
+   - name: Wait for the instance to come up
+     wait_for: delay=10 host={{ ec2.instances[0].public_ip }} port=22 state=started timeout=360
+     with_sequence: start=0 end={{ count|int - 1 }}
+   
+   - pause: seconds=60
+

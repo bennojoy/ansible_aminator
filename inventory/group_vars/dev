@@ -1,0 +1,8 @@
+#
+# EC2 specific variables 
+#
+ec2_keypair: "axialkey"
+ec2_instance_type: "t1.micro"
+ec2_image_id: "ami-d0f89fb9"
+ec2_group: default
+
